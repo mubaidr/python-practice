@@ -9,7 +9,8 @@ import random
 # The quiz data. Keys are states and values are their CAPITALS.
 CAPITALS = {'Alabama': 'Montgomery', 'Alaska': 'Juneau', 'Arizona': 'Phoenix', 'Arkansas': 'Little Rock', 'California': 'Sacramento', 'Colorado': 'Denver', 'Connecticut': 'Hartford', 'Delaware': 'Dover', 'Florida': 'Tallahassee', 'Georgia': 'Atlanta', 'Hawaii': 'Honolulu', 'Idaho': 'Boise', 'Illinois': 'Springfield', 'Indiana': 'Indianapolis', 'Iowa': 'Des Moines', 'Kansas': 'Topeka', 'Kentucky': 'Frankfort', 'Louisiana': 'Baton Rouge', 'Maine': 'Augusta', 'Maryland': 'Annapolis', 'Massachusetts': 'Boston', 'Michigan': 'Lansing', 'Minnesota': 'Saint Paul', 'Mississippi': 'Jackson', 'Missouri': 'Jefferson City',
             'Montana': 'Helena', 'Nebraska': 'Lincoln', 'Nevada': 'Carson City', 'New Hampshire': 'Concord', 'New Jersey': 'Trenton', 'New Mexico': 'Santa Fe', 'New York': 'Albany', 'North Carolina': 'Raleigh', 'North Dakota': 'Bismarck', 'Ohio': 'Columbus', 'Oklahoma': 'Oklahoma City', 'Oregon': 'Salem', 'Pennsylvania': 'Harrisburg', 'Rhode Island': 'Providence', 'South Carolina': 'Columbia', 'South Dakota': 'Pierre', 'Tennessee': 'Nashville', 'Texas': 'Austin', 'Utah': 'Salt Lake City', 'Vermont': 'Montpelier', 'Virginia': 'Richmond', 'Washington': 'Olympia', 'West Virginia': 'Charleston', 'Wisconsin': 'Madison', 'Wyoming': 'Cheyenne'}
-QUIZES_DIR = 'dist'
+QUIZ_DIR = 'dist\\quiz'
+KEY_DIR = 'dist\\key'
 
 # Get count from command line
 if len(sys.argv) < 2:
@@ -26,36 +27,39 @@ else:
         exit()
 
 # Check if output folder exists
-if not os.path.exists(QUIZES_DIR):
-    os.makedirs(QUIZES_DIR)
-    os.makedirs(os.path.join(QUIZES_DIR, 'quiz'))
-    os.makedirs(os.path.join(QUIZES_DIR, 'key'))
-else:
-    os.chdir(QUIZES_DIR)
-    if not os.path.exists('.\quiz'):
-        os.makedirs('.\quiz')
-    if not os.path.exists('.\key'):
-        os.makedirs('.\key')
+if not os.path.isdir(os.path.join(os.getcwd(), QUIZ_DIR)):
+    os.makedirs(os.path.join(os.getcwd(), QUIZ_DIR))
+if not os.path.isdir(os.path.join(os.getcwd(), KEY_DIR)):
+    os.makedirs(os.path.join(os.getcwd(), KEY_DIR))
+
+# Clean given folder
+
+
+def cleanPath(path):
+    FOLDER = os.path.join(os.getcwd(), path)
+    for the_file in os.listdir(FOLDER):
+        file_path = os.path.join(FOLDER, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
 
 # Cleanup output folder
-FOLDER = os.getcwd()
-for the_file in os.listdir(FOLDER):
-    file_path = os.path.join(FOLDER, the_file)
-    try:
-        if os.path.isfile(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-    except Exception as e:
-        print(e)
+cleanPath(QUIZ_DIR)
+cleanPath(KEY_DIR)
+
 
 # Generate new quizes
 for i in range(COUNT):
     # Genrate quiz & answer files
     quizFile = open(os.path.join(
-        'quiz', 'quiz-{0}.txt'.format(i + 1)), mode='w+')
+        QUIZ_DIR, 'quiz-{0}.txt'.format(i + 1)), mode='w+')
     keysFile = open(os.path.join(
-        'key', 'key-{0}.txt'.format(i + 1)), mode='w+')
+        KEY_DIR, 'key-{0}.txt'.format(i + 1)), mode='w+')
     # quiz headers
     quizFile.write('Name: \nDate: \n\n')
     quizFile.write('State Capitals Quiz (Form {0})'.format(i + 1))
@@ -89,5 +93,5 @@ for i in range(COUNT):
     quizFile.close()
     keysFile.close()
 
-print('Done! Quiz and keys are located in:' + os.getcwd())
+print('Done! Quiz and keys are located in: ' + os.getcwd())
 exit()
