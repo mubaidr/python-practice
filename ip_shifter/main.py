@@ -1,4 +1,4 @@
-""" IP Changer Module """
+''' IP Changer Module '''
 
 # Welcome message
 print('\nHello!\n')
@@ -15,6 +15,6 @@ UTILITIES = __import__('util')
 # Collect system NICs
 NIC_CONFIGS = UTILITIES.get_nic_list()
 # Get target NIC from user
-SELECTED_NIC = UTILITIES.get_nic_input(NIC_CONFIGS)
+# SELECTED_NIC = UTILITIES.get_nic_input(NIC_CONFIGS) # TODO uncomment this code
 # start the process
 SCHEDULER.start()

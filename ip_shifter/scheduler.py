@@ -12,7 +12,11 @@ UTILITIES = __import__('util')
 
 def start():
     ''' Starting the IP shifting... '''
-    print('start')
+
+    CONFIG = UTILITIES.get_config()
+
+    print(CONFIG)
+
     # TODO get config.txt
     # TODO prepare range of ip address list
     # TODO step 1: change IP address
@@ -21,7 +25,7 @@ def start():
 
 
 def ip_shifter(nic):
-    ''' Initilize ip shifting mechanism on provided NIC '''
+    ''' Initialize ip shifting mechanism on provided NIC '''
 
     # IP address, subnetmask and gateway values should be unicode objects
     ip_address = u'192.168.0.11'
