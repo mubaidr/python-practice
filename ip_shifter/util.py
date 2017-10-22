@@ -17,15 +17,19 @@ def get_config():
         'delay': None
     }
 
-    config_file = open(os.path.join(os.getcwd(), 'config.txt'), 'r')
-    lines = config_file.readlines()
+    LINES = []
+    try:
+        config_file = open(os.path.join(os.getcwd(), 'config.txt'), 'r')
+        LINES = config_file.readlines()
+    except FileNotFoundError:
+        print('\nConfig file read error. \n')
 
-    if len(lines) >= 4:
+    if len(LINES) >= 4:
         print('\nValid config found.\n')
-        config['start'] = lines[0].replace('\n', '')
-        config['end'] = lines[1].replace('\n', '')
-        config['timeout'] = int(lines[2])
-        config['delay'] = int(lines[3])
+        config['start'] = LINES[0].replace('\n', '')
+        config['end'] = LINES[1].replace('\n', '')
+        config['timeout'] = int(LINES[2])
+        config['delay'] = int(LINES[3])
     else:
         print('\nNo valid config found, please provide the required information. \n\n')
         print(' Enter start of IP address range: ')
@@ -103,6 +107,6 @@ def is_connected():
         host = socket.gethostbyname(remote_server)
         socket.create_connection((host, 80), 2)
         return True
-    except:
-        pass
+    except EnvironmentError:
+        print('\nUnable to test connection. \n')
     return False
