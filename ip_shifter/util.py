@@ -65,15 +65,17 @@ def get_nic_list():
     ''' Obtain network adaptors configurations '''
 
     configs = wmi.WMI().Win32_NetworkAdapterConfiguration(IPEnabled=True)
-    print_nic_list(configs)
     return configs
 
 
 def is_connected():
     ''' Check if internet connection is working '''
 
-    with urllib.request.urlopen('https://duckduckgo.com') as req:
-        return req.status == 200
+    try:
+        with urllib.request.urlopen('https://duckduckgo.com') as req:
+            return req.status == 200
+    except:
+        return False
 
 
 def prepare_ip_range(start_ip, end_ip):
@@ -86,7 +88,7 @@ def prepare_ip_range(start_ip, end_ip):
 
     ip_range.append(start_ip)
     while temp != end:
-        start[3] += 1
+        temp[3] += 1
         for i in (3, 2, 1):
             if temp[i] == 256:
                 temp[i] = 0
@@ -94,3 +96,8 @@ def prepare_ip_range(start_ip, end_ip):
         ip_range.append(".".join(map(str, temp)))
 
     return ip_range
+
+
+def signal_handler(signal, frame):
+    print('Bye Bye!')
+    exit()

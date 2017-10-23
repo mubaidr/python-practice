@@ -1,19 +1,22 @@
 ''' IP scheduler '''
 
+import signal
+import sys
 import time
 
 # Import utility functions
 UTILITIES = __import__('util')
 
 
-def start(nic):
+def start(nic_index):
     ''' Starting the IP shifting... '''
 
     config = UTILITIES.get_config()
-    ip_list = UTILITIES.prepare_ip_range(config['start'], config['end'])
+    ip_list = UTILITIES.prepare_ip_range(
+        config['ip']['start'], config['ip']['end'])
 
     for ip_address in ip_list:
-        set_ip_address(nic, ip_address, config['gateway'])
+        set_ip_address(nic_index, ip_address, config)
         print('IP Address: {}\n'.format(ip_address))
         time.sleep(config['timeout'])
         if UTILITIES.is_connected():
@@ -21,19 +24,16 @@ def start(nic):
             time.sleep(config['delay'])
 
 
-def set_ip_address(nic, ip_address, gateway):
+def set_ip_address(nic_index, ip_address, cfg):
     ''' Initialize ip shifting mechanism on provided NIC '''
 
-    # IP address, subnetmask and gateway values should be unicode objects
-    #ip_address = ip_address.encode("utf-8")
-    ip_address = u'111.111.111.111'
-    gateway = u'111.111.111.100'
-    subnetmask = u'255.255.0.0'
-    #gateway = u'192.168.168.192'
-# Set IP address, subnetmask and default gateway
-# Note: EnableStatic() and SetGateways() methods require *lists* of values to be passed
+    nics = UTILITIES.get_nic_list()
+    nic = nics[nic_index]
+
     try:
-        nic.EnableStatic(IPAddress=[ip_address], SubnetMask=[subnetmask])
-        nic.SetGateways(DefaultIPGateway=[gateway])
+        nic.EnableStatic(IPAddress=[ip_address],
+                         SubnetMask=[cfg['subnet']])
+        nic.SetGateways(DefaultIPGateway=[cfg['gateway']])
     except:
-        print('Doh...')
+        print('Doh... Some unexpected error occured!')
+        exit()
