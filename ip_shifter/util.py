@@ -2,7 +2,7 @@
 
 import os
 import socket
-import re
+import json
 import wmi
 # import pypiwin32
 
@@ -10,37 +10,12 @@ import wmi
 def get_config():
     ''' Get config from file if available otherwise invoke user input '''
 
-    config = {
-        'start': None,
-        'end': None,
-        'timeout': None,
-        'delay': None
-    }
-
-    LINES = []
     try:
-        config_file = open(os.path.join(os.getcwd(), 'config.txt'), 'r')
-        LINES = config_file.readlines()
+        with open(os.path.join(os.getcwd(), 'config.json'), 'r') as json_data:
+            return json.load(json_data)
     except FileNotFoundError:
-        print('\nConfig file read error. \n')
-
-    if len(LINES) >= 4:
-        print('\nValid config found.\n')
-        config['start'] = LINES[0].replace('\n', '')
-        config['end'] = LINES[1].replace('\n', '')
-        config['timeout'] = int(LINES[2])
-        config['delay'] = int(LINES[3])
-    else:
         print('\nNo valid config found, please provide the required information. \n\n')
-        print(' Enter start of IP address range: ')
-        config['start'] = input()
-        print(' Enter end of IP address range: ')
-        config['end'] = input()
-        print(' Enter time (seconds) to switch IP address: ')
-        config['timeout'] = int(input())
-        print(' Enter delay (seconds) to test IP address: ')
-        config['delay'] = int(input())
-    return config
+        exit()
 
 
 def get_nic_input(configs):
@@ -64,31 +39,26 @@ def get_nic_input(configs):
     return selected_nic
 
 
-def simplify_nic_name(cfg):
-    ''' Removes numbering from NIC names'''
-
-    regex = re.compile(r'\[[0-9]{8}\]', re.IGNORECASE)
-    return re.sub(regex, '', cfg.Caption)
-
-
 def print_nic_list(configs):
     ''' Prints NIC names from the config list '''
 
     for index, config in enumerate(configs):
-        name = simplify_nic_name(config)
+        name = config.Description
         print('{0}: {1}'.format(index + 1, name))
 
 
 def print_nic_name(config):
     ''' Prints NIC name from the config '''
 
-    print('\nTarget NIC: {0}\n'.format(simplify_nic_name(config)))
+    name = config.Description
+    print('\nTarget NIC: {0}\n'.format(name))
 
 
 def get_nic_name(config):
     ''' Returns NIC name from the config '''
 
-    return simplify_nic_name(config)
+    name = config.Description
+    return name
 
 
 def get_nic_list():
@@ -110,3 +80,23 @@ def is_connected():
     except EnvironmentError:
         print('\nUnable to test connection. \n')
     return False
+
+
+def prepare_ip_range(start_ip, end_ip):
+    ''' Prepare list based on the provided range '''
+
+    start = list(map(int, start_ip.split(".")))
+    end = list(map(int, end_ip.split(".")))
+    temp = start
+    ip_range = []
+
+    ip_range.append(start_ip)
+    while temp != end:
+        start[3] += 1
+        for i in (3, 2, 1):
+            if temp[i] == 256:
+                temp[i] = 0
+                temp[i - 1] += 1
+        ip_range.append(".".join(map(str, temp)))
+
+    return ip_range
