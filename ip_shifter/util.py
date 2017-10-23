@@ -1,8 +1,8 @@
 ''' Utility functions '''
 
 import os
-import socket
 import json
+import urllib.request
 import wmi
 # import pypiwin32
 
@@ -72,14 +72,8 @@ def get_nic_list():
 def is_connected():
     ''' Check if internet connection is working '''
 
-    remote_server = "www.google.com"
-    try:
-        host = socket.gethostbyname(remote_server)
-        socket.create_connection((host, 80), 2)
-        return True
-    except EnvironmentError:
-        print('\nUnable to test connection. \n')
-    return False
+    with urllib.request.urlopen('https://duckduckgo.com') as req:
+        return req.status == 200
 
 
 def prepare_ip_range(start_ip, end_ip):
